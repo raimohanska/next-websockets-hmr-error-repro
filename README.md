@@ -1,6 +1,16 @@
 Codebase for reproducing a Next.js + espress-ws HMR issue.
 
-How to reproduce:
+## The problem
+
+When using Next.js 13, Express and express-ws, the HMR (hot module replacement) implementation in
+Next.js breaks down with WebSocket errors
+
+## The cause
+
+This happens because express-ws captures all HTTP->WebSocket upgrade events instead of only those that
+match some of the WebSocket routes that the application has configured.
+
+## How to reproduce
 
 1. Clone this repository
 2. Install dependencies `npm install` or `yarn install`
@@ -10,4 +20,8 @@ How to reproduce:
 
 The errors only occur when `express-ws` is initialized in server/server.ts.
 
-Based on [Next.js](https://nextjs.org/) template to use when reporting a [bug in the Next.js repository](https://github.com/vercel/next.js/issues).
+## Workaround
+
+In many use cases, you only need one websocket handler or at least don't need a full blown routing system
+for WebSocket handlers. See the simple solution using only the `ws` library, in the `setupWebsocketsUsingWs`
+method in [server.ts](server/server.ts).

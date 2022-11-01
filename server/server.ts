@@ -38,15 +38,21 @@ function setupWebsocketsUsingExpressWs() {
 }
 
 function setupWebsocketsUsingWs() {
+  // Use the `noServer` attribute here to avoid creating a new HTTP server,
+  // or capturing all WebSocket upgrades of an existing one
   const wss = new WS.WebSocketServer({
     noServer: true,
   });
 
   http.on("upgrade", (request, socket, head) => {
     const { pathname } = parse(request.url!);
+    // Only handle WebSocket upgrades of the specific path(s) your application
+    // needs to handle
     if (pathname === "/myspecialsocket") {
       wss.handleUpgrade(request, socket, head, function done(ws) {
         console.log("Socket connected");
+        // At this point, you have the WebSocket in `ws`
+        // and the original HTTP request in `request` available
         ws.send("Welcome to the socket");
       });
     }

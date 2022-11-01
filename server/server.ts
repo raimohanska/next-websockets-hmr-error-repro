@@ -11,13 +11,21 @@ const nextApp = next({ dev });
 const nextJsHandle = nextApp.getRequestHandler();
 
 nextApp.prepare().then(() => {
+  // Comment out the following to fix HMR
+  setupWebsockets();
+
   app.all("*", (req, res) => {
     console.log("Request to Next.js", req.url);
     return nextJsHandle(req, res);
   });
 
-  // Comment out the following to fix HMR
-  expressWs(app, http, { leaveRouterUntouched: true });
-
   http.listen(3000, () => console.log(`Listening at http://localhost:${port}`));
 });
+
+function setupWebsockets() {
+  const ws = expressWs(app, http, { leaveRouterUntouched: true });
+  ws.app.ws("/myspecialsocket", (ws, req) => {
+    console.log("Socket connected");
+    ws.send("Welcome to the socket");
+  });
+}
